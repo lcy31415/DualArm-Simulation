@@ -1,0 +1,97 @@
+# ============================================
+# 基本操作命令
+# ============================================
+
+# 启动仿真（包含工作空间、物块和码垛区）
+source install/setup.bash
+ros2 launch ur5_sim_pkg sim.launch.py
+
+# 启动 RViz（在另一个终端，仿真启动后）
+source install/setup.bash
+./start_rviz.sh
+
+# rqt查看图像
+ros2 run rqt_image_view rqt_image_view
+
+# 关节控制GUI
+source install/setup.bash
+ros2 run control_demo joint_slider_control
+
+# ============================================
+# MoveIt 控制演示 - 使用说明
+# ============================================
+
+# 终端 1 - 启动仿真
+source install/setup.bash
+ros2 launch ur5_sim_pkg sim.launch.py
+
+# 终端 2 - 启动 MoveIt
+source install/setup.bash
+ros2 launch ur5_moveit_config move_group.launch.py
+
+# 终端 3 - 运行 MoveIt 控制演示
+source install/setup.bash
+ros2 run moveit_control_demo simple_demo
+
+# 演示功能：
+# - 机械臂会自动移动到预定义的位置 (home -> ready -> up -> home)
+# - 使用 MoveIt 的运动规划和执行
+# - 验证仿真环境和 MoveIt 配置是否正常工作
+
+# ============================================
+# 抓取测试 Demo - 使用说明
+# ============================================
+
+# 终端 1 - 启动仿真
+source install/setup.bash
+ros2 launch ur5_sim_pkg sim.launch.py
+
+# 终端 2 - 启动 MoveIt
+source install/setup.bash
+ros2 launch ur5_moveit_config move_group.launch.py
+
+# 终端 3 - 运行抓取测试 Demo
+source install/setup.bash
+ros2 run moveit_control_demo grasp_test
+
+# 演示流程：
+# 1. 打开夹爪
+# 2. 移动到蓝色物块上方（预抓取位置）
+# 3. 下降到抓取位置
+# 4. 关闭夹爪抓取物块
+# 5. 抬升物块
+# 6. 移动到码垛区上方
+# 7. 下降到放置高度
+# 8. 打开夹爪释放物块
+# 9. 抬升离开
+
+# ============================================
+# 工作空间说明
+# ============================================
+# 工作空间包含：
+# 1. 工作台 (0.8m x 0.9m 长方形平台，位于机械臂前方)
+# 2. 红色方块 x2 (5cm立方体，可抓取)
+# 3. 绿色方块 x2 (5cm立方体，可抓取)
+# 4. 蓝色方块 x1 (5cm立方体，可抓取，位于 x=0.35, y=0.0)
+# 5. 码垛区域标记 (黄色薄长方形，20cm x 20cm)
+
+[color_detector-1] [INFO] [1770365923.258966436] [color_detector]: 检测到 5 个物体: 】
+red(2D:[291,206], 3D:[-0.051,-0.060,0.979]), 
+red(2D:[236,206], 3D:[-0.148,-0.060,0.979]), 
+green(2D:[402,205], 3D:[0.145,-0.062,0.980]), 
+green(2D:[347,206], 3D:[0.048,-0.060,0.979]), 
+blue(2D:[319,286], 3D:[-0.002,0.077,0.929])
+
+[color_detector-1] [INFO] [1770378911.733569089] [color_detector]: 检测到 5 个物体: 
+red(2D:[291,206], 3D:[0.609,-0.051,0.100]), 
+red(2D:[236,206], 3D:[0.609,-0.148,0.100]), 
+green(2D:[402,205], 3D:[0.607,0.145,0.100]), 
+green(2D:[347,206], 3D:[0.609,0.048,0.100]), 
+blue(2D:[319,286], 3D:[0.755,-0.002,0.100])
+
+[color_detector-1] [INFO] [1770379544.330776576] [color_detector]: 检测到 5 个物体: 
+red(2D:[291,206], 3D:[0.209,-0.051,0.100]), 
+red(2D:[236,206], 3D:[0.209,-0.148,0.100]), 
+green(2D:[402,205], 3D:[0.207,0.145,0.100]),
+green(2D:[347,206], 3D:[0.209,0.048,0.100]),
+blue(2D:[319,286], 3D:[0.355,-0.002,0.100])

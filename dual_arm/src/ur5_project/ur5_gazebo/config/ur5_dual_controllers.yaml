@@ -1,0 +1,65 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    # ============ 双臂轨迹控制器 ============
+    left_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    right_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    # ============ 双夹爪 Forward 控制器 ============
+    left_gripper_controller:
+      type: forward_command_controller/ForwardCommandController
+    right_gripper_controller:
+      type: forward_command_controller/ForwardCommandController
+
+# ============================== 左臂轨迹控制器 ==============================
+left_arm_controller:
+  ros__parameters:
+    joints:
+      - left_shoulder_pan_joint
+      - left_shoulder_lift_joint
+      - left_elbow_joint
+      - left_wrist_1_joint
+      - left_wrist_2_joint
+      - left_wrist_3_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+# ============================== 右臂轨迹控制器 ==============================
+right_arm_controller:
+  ros__parameters:
+    joints:
+      - right_shoulder_pan_joint
+      - right_shoulder_lift_joint
+      - right_elbow_joint
+      - right_wrist_1_joint
+      - right_wrist_2_joint
+      - right_wrist_3_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+# ============================== 左夹爪 ==============================
+# Robotiq 2F-85: 0.0=全开, 0.8=全闭，其他关节 mimic 自动跟随
+left_gripper_controller:
+  ros__parameters:
+    joints:
+      - left_robotiq_85_left_knuckle_joint
+    interface_name: position
+
+# ============================== 右夹爪 ==============================
+right_gripper_controller:
+  ros__parameters:
+    joints:
+      - right_robotiq_85_left_knuckle_joint
+    interface_name: position

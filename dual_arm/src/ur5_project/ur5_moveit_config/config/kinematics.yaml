@@ -1,0 +1,29 @@
+# Kinematics solver configuration
+# 运动学求解器配置：单臂保留 ur5_arm，双臂新增 left_arm / right_arm
+
+# ============ 单臂遗留组（保持向后兼容） ============
+ur5_arm:
+  kinematics_solver: trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_attempts: 10
+  kinematics_solver_timeout: 0.5
+  position_only_ik: false
+  solve_type: Distance
+
+# ============ 双臂左臂规划组 ============
+left_arm:
+  kinematics_solver: trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_attempts: 10
+  kinematics_solver_timeout: 0.5
+  position_only_ik: false
+  solve_type: Distance
+
+# ============ 双臂右臂规划组 ============
+right_arm:
+  kinematics_solver: trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_attempts: 10
+  kinematics_solver_timeout: 0.5
+  position_only_ik: false
+  solve_type: Distance

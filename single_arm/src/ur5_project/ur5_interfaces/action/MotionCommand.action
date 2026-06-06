@@ -1,0 +1,13 @@
+# Goal: 运动命令
+string command_type  # "move" 或 "gripper"
+geometry_msgs/Point target_position  # 目标位置（仅当 command_type="move" 时使用）
+bool gripper_close  # 夹爪状态（仅当 command_type="gripper" 时使用）
+---
+# Result: 执行结果
+bool success  # 是否成功
+string message  # 结果消息
+int32 error_code  # 错误代码（0=成功）
+---
+# Feedback: 执行反馈
+string current_state  # 当前状态: "received", "planning", "executing", "completed"
+float32 progress  # 进度 0.0-1.0

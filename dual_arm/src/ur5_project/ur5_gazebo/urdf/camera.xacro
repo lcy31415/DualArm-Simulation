@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!--
+    固定相机模型 (Eye-to-Hand)
+    相机固定在场景中，俯视观察机械臂工作区域
+    -->
+
+    <xacro:macro name="fixed_camera" params="prefix parent *origin">
+
+        <!-- 相机固定连接 -->
+        <joint name="${prefix}camera_joint" type="fixed">
+            <parent link="${parent}"/>
+            <child link="${prefix}camera_link"/>
+            <xacro:insert_block name="origin"/>
+        </joint>
+
+        <!-- 相机主体 -->
+        <link name="${prefix}camera_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.05 0.15 0.05"/>
+                </geometry>
+                <material name="camera_gray">
+                    <color rgba="0.3 0.3 0.3 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.05 0.15 0.05"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.2"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+            </inertial>
+        </link>
+
+        <!-- 相机光学坐标系 (遵循 ROS 相机坐标系约定: Z向前, X向右, Y向下) -->
+        <joint name="${prefix}camera_optical_joint" type="fixed">
+            <parent link="${prefix}camera_link"/>
+            <child link="${prefix}camera_optical_frame"/>
+            <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+        </joint>
+
+        <link name="${prefix}camera_optical_frame"/>
+
+        <!-- ================= Gazebo Harmonic 深度相机传感器配置 ================= -->
+        <!-- 关键点：Gazebo Harmonic 必须使用完整的传感器插件配置 -->
+        <gazebo reference="${prefix}camera_link">
+            <!-- RGB 相机传感器 -->
+            <sensor name="${prefix}camera" type="camera">
+                <always_on>true</always_on>
+                <update_rate>30.0</update_rate>
+                <visualize>true</visualize>
+                <topic>${prefix}camera/image_raw</topic>
+                <camera name="${prefix}camera">
+                    <horizontal_fov>1.047</horizontal_fov> <!-- 60度 -->
+                    <image>
+                        <width>640</width>
+                        <height>480</height>
+                        <format>R8G8B8</format>
+                    </image>
+                    <clip>
+                        <near>0.1</near>
+                        <far>10.0</far>
+                    </clip>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.007</stddev>
+                    </noise>
+                    <!-- 关键：设置光学坐标系 -->
+                    <optical_frame_id>${prefix}camera_optical_frame</optical_frame_id>
+                </camera>
+                <!-- 关键：添加 Gazebo 传感器插件 -->
+                <ignition_frame_id>${prefix}camera_link</ignition_frame_id>
+            </sensor>
+
+            <!-- RGBD 深度相机传感器 (提供深度图和点云) -->
+            <sensor name="${prefix}rgbd_camera" type="rgbd_camera">
+                <always_on>true</always_on>
+                <update_rate>30.0</update_rate>
+                <visualize>false</visualize>
+                <topic>${prefix}camera/rgbd</topic>
+                <camera name="${prefix}rgbd_camera">
+                    <horizontal_fov>1.047</horizontal_fov>
+                    <image>
+                        <width>640</width>
+                        <height>480</height>
+                        <format>R8G8B8</format>
+                    </image>
+                    <clip>
+                        <near>0.1</near>
+                        <far>10.0</far>
+                    </clip>
+                    <depth_camera>
+                        <clip>
+                            <near>0.1</near>
+                            <far>10.0</far>
+                        </clip>
+                    </depth_camera>
+                    <!-- 关键：设置光学坐标系 -->
+                    <optical_frame_id>${prefix}camera_optical_frame</optical_frame_id>
+                </camera>
+                <!-- 关键：添加 Gazebo 传感器插件 -->
+                <ignition_frame_id>${prefix}camera_link</ignition_frame_id>
+            </sensor>
+        </gazebo>
+
+    </xacro:macro>
+
+</robot>

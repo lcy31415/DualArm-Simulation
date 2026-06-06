@@ -1,0 +1,19 @@
+# Python 虚拟环境
+.venv/
+
+# ROS2 编译产物
+build/
+install/
+log/
+
+# 模型权重
+models/*.pt
+models/*.onnx
+
+# 数据集
+dataset.yolov8-obb*/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo

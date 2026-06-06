@@ -1,0 +1,31 @@
+# OMPL Planning configuration
+# OMPL 运动规划库配置
+
+planning_plugins:
+  - ompl_interface/OMPLPlanner
+
+# The order of the elements in the adapter corresponds to the order they are processed by the motion planning pipeline.
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+
+response_adapters:
+  - default_planning_response_adapters/AddTimeOptimalParameterization
+  - default_planning_response_adapters/ValidateSolution
+  - default_planning_response_adapters/DisplayMotionPath
+
+# UR5 Arm OMPL planning configuration
+ur5_arm:
+  planner_configs:
+    - RRTConnect
+    - RRTstar
+    - EST
+    - LBKPIECE
+    - BKPIECE
+    - KPIECE
+    - RRT
+    - SBL
+  projection_evaluator: joints(shoulder_pan_joint,shoulder_lift_joint)
+  longest_valid_segment_fraction: 0.005

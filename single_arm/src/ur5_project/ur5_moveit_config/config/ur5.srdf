@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SRDF (Semantic Robot Description Format) for UR5 with Robotiq Gripper
+    定义规划组、末端执行器、自碰撞检测等
+-->
+<robot name="ur5_robot">
+
+    <!-- ================= Planning Groups ================= -->
+
+    <!-- UR5 机械臂规划组 -->
+    <group name="ur5_arm">
+        <chain base_link="base_link" tip_link="tool0"/>
+    </group>
+
+    <!-- Robotiq 夹爪规划组 -->
+    <group name="gripper">
+        <joint name="robotiq_85_left_knuckle_joint"/>
+        <joint name="robotiq_85_right_knuckle_joint"/>
+        <joint name="robotiq_85_left_inner_knuckle_joint"/>
+        <joint name="robotiq_85_right_inner_knuckle_joint"/>
+        <joint name="robotiq_85_left_finger_tip_joint"/>
+        <joint name="robotiq_85_right_finger_tip_joint"/>
+    </group>
+
+    <!-- ================= End Effectors ================= -->
+
+    <!-- 定义末端执行器（夹爪）-->
+    <end_effector name="gripper" parent_link="tool0" group="gripper"/>
+
+    <!-- ================= Group States ================= -->
+
+    <!-- 机械臂预定义姿态 -->
+    <group_state name="home" group="ur5_arm">
+        <joint name="shoulder_pan_joint" value="0"/>
+        <joint name="shoulder_lift_joint" value="-1.5708"/>
+        <joint name="elbow_joint" value="0"/>
+        <joint name="wrist_1_joint" value="-1.5708"/>
+        <joint name="wrist_2_joint" value="0"/>
+        <joint name="wrist_3_joint" value="0"/>
+    </group_state>
+
+    <group_state name="ready" group="ur5_arm">
+        <joint name="shoulder_pan_joint" value="0"/>
+        <joint name="shoulder_lift_joint" value="-1.0"/>
+        <joint name="elbow_joint" value="1.5"/>
+        <joint name="wrist_1_joint" value="-2.0"/>
+        <joint name="wrist_2_joint" value="-1.57"/>
+        <joint name="wrist_3_joint" value="0"/>
+    </group_state>
+
+    <!-- 夹爪预定义状态 -->
+    <group_state name="open" group="gripper">
+        <joint name="robotiq_85_left_knuckle_joint" value="0.0"/>
+    </group_state>
+
+    <group_state name="close" group="gripper">
+        <joint name="robotiq_85_left_knuckle_joint" value="0.8"/>
+    </group_state>
+
+    <!-- ================= Disable Collisions ================= -->
+    <!-- 禁用不会发生碰撞的连杆对，提高规划速度 -->
+
+    <disable_collisions link1="base_link" link2="shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="base_link_inertia" link2="shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="base_link_inertia" link2="base_link" reason="Adjacent"/>
+    <disable_collisions link1="shoulder_link" link2="upper_arm_link" reason="Adjacent"/>
+    <disable_collisions link1="upper_arm_link" link2="forearm_link" reason="Adjacent"/>
+    <disable_collisions link1="forearm_link" link2="wrist_1_link" reason="Adjacent"/>
+    <disable_collisions link1="wrist_1_link" link2="wrist_2_link" reason="Adjacent"/>
+    <disable_collisions link1="wrist_2_link" link2="wrist_3_link" reason="Adjacent"/>
+    <disable_collisions link1="wrist_3_link" link2="robotiq_85_base_link" reason="Adjacent"/>
+
+    <!-- 禁用夹爪内部碰撞检测 -->
+    <disable_collisions link1="robotiq_85_base_link" link2="robotiq_85_left_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_base_link" link2="robotiq_85_right_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_base_link" link2="robotiq_85_left_inner_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_base_link" link2="robotiq_85_right_inner_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_left_knuckle_link" link2="robotiq_85_left_finger_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_right_knuckle_link" link2="robotiq_85_right_finger_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_left_finger_link" link2="robotiq_85_left_finger_tip_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_right_finger_link" link2="robotiq_85_right_finger_tip_link" reason="Adjacent"/>
+    <disable_collisions link1="robotiq_85_left_inner_knuckle_link" link2="robotiq_85_left_knuckle_link" reason="Default"/>
+    <disable_collisions link1="robotiq_85_right_inner_knuckle_link" link2="robotiq_85_right_knuckle_link" reason="Default"/>
+    <disable_collisions link1="robotiq_85_left_finger_tip_link" link2="robotiq_85_left_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="robotiq_85_right_finger_tip_link" link2="robotiq_85_right_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="robotiq_85_left_finger_link" link2="robotiq_85_left_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="robotiq_85_right_finger_link" link2="robotiq_85_right_inner_knuckle_link" reason="Default"/>
+
+    <!-- 禁用相机与其他部件的碰撞检测 -->
+    <disable_collisions link1="camera_link" link2="base_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="shoulder_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="upper_arm_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="forearm_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="wrist_1_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="wrist_2_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="wrist_3_link" reason="Never"/>
+
+</robot>

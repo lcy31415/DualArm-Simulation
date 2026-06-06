@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SRDF for dual-UR5 with two Robotiq grippers + overhead camera
+    定义双臂规划组、末端执行器、双夹爪、ACM
+-->
+<robot name="ur5_dual_robot">
+
+    <!-- ================= Planning Groups ================= -->
+
+    <!-- 左臂规划组 -->
+    <group name="left_arm">
+        <chain base_link="left_base_link" tip_link="left_tool0"/>
+    </group>
+
+    <!-- 右臂规划组 -->
+    <group name="right_arm">
+        <chain base_link="right_base_link" tip_link="right_tool0"/>
+    </group>
+
+    <!-- 双臂联合规划组 -->
+    <group name="both_arms">
+        <group name="left_arm"/>
+        <group name="right_arm"/>
+    </group>
+
+    <!-- 左夹爪规划组 -->
+    <group name="left_gripper">
+        <joint name="left_robotiq_85_left_knuckle_joint"/>
+        <joint name="left_robotiq_85_right_knuckle_joint"/>
+        <joint name="left_robotiq_85_left_inner_knuckle_joint"/>
+        <joint name="left_robotiq_85_right_inner_knuckle_joint"/>
+        <joint name="left_robotiq_85_left_finger_tip_joint"/>
+        <joint name="left_robotiq_85_right_finger_tip_joint"/>
+    </group>
+
+    <!-- 右夹爪规划组 -->
+    <group name="right_gripper">
+        <joint name="right_robotiq_85_left_knuckle_joint"/>
+        <joint name="right_robotiq_85_right_knuckle_joint"/>
+        <joint name="right_robotiq_85_left_inner_knuckle_joint"/>
+        <joint name="right_robotiq_85_right_inner_knuckle_joint"/>
+        <joint name="right_robotiq_85_left_finger_tip_joint"/>
+        <joint name="right_robotiq_85_right_finger_tip_joint"/>
+    </group>
+
+    <!-- ================= End Effectors ================= -->
+    <end_effector name="left_ee"  parent_link="left_tool0"  group="left_gripper"/>
+    <end_effector name="right_ee" parent_link="right_tool0" group="right_gripper"/>
+
+    <!-- ================= Group States ================= -->
+    <!-- 左臂预定义姿态 -->
+    <group_state name="home" group="left_arm">
+        <joint name="left_shoulder_pan_joint"  value="0"/>
+        <joint name="left_shoulder_lift_joint" value="-1.5708"/>
+        <joint name="left_elbow_joint"         value="0"/>
+        <joint name="left_wrist_1_joint"       value="-1.5708"/>
+        <joint name="left_wrist_2_joint"       value="0"/>
+        <joint name="left_wrist_3_joint"       value="0"/>
+    </group_state>
+    <group_state name="ready" group="left_arm">
+        <joint name="left_shoulder_pan_joint"  value="0"/>
+        <joint name="left_shoulder_lift_joint" value="-1.0"/>
+        <joint name="left_elbow_joint"         value="1.5"/>
+        <joint name="left_wrist_1_joint"       value="-2.0"/>
+        <joint name="left_wrist_2_joint"       value="-1.57"/>
+        <joint name="left_wrist_3_joint"       value="0"/>
+    </group_state>
+
+    <!-- 右臂预定义姿态（关节角度对称，因为各自局部坐标） -->
+    <group_state name="home" group="right_arm">
+        <joint name="right_shoulder_pan_joint"  value="0"/>
+        <joint name="right_shoulder_lift_joint" value="-1.5708"/>
+        <joint name="right_elbow_joint"         value="0"/>
+        <joint name="right_wrist_1_joint"       value="-1.5708"/>
+        <joint name="right_wrist_2_joint"       value="0"/>
+        <joint name="right_wrist_3_joint"       value="0"/>
+    </group_state>
+    <group_state name="ready" group="right_arm">
+        <joint name="right_shoulder_pan_joint"  value="0"/>
+        <joint name="right_shoulder_lift_joint" value="-1.0"/>
+        <joint name="right_elbow_joint"         value="1.5"/>
+        <joint name="right_wrist_1_joint"       value="-2.0"/>
+        <joint name="right_wrist_2_joint"       value="-1.57"/>
+        <joint name="right_wrist_3_joint"       value="0"/>
+    </group_state>
+
+    <!-- 夹爪状态 -->
+    <group_state name="open" group="left_gripper">
+        <joint name="left_robotiq_85_left_knuckle_joint" value="0.0"/>
+    </group_state>
+    <group_state name="close" group="left_gripper">
+        <joint name="left_robotiq_85_left_knuckle_joint" value="0.8"/>
+    </group_state>
+    <group_state name="open" group="right_gripper">
+        <joint name="right_robotiq_85_left_knuckle_joint" value="0.0"/>
+    </group_state>
+    <group_state name="close" group="right_gripper">
+        <joint name="right_robotiq_85_left_knuckle_joint" value="0.8"/>
+    </group_state>
+
+    <!-- ================= Disable Collisions ================= -->
+    <!-- 关键：仅禁用每臂内部相邻 link 和夹爪内部碰撞，保留跨臂 (left↔right) 碰撞检测 -->
+
+    <!-- ===== 左臂内部相邻链 ===== -->
+    <disable_collisions link1="left_base_link" link2="left_shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="left_base_link_inertia" link2="left_shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="left_base_link_inertia" link2="left_base_link" reason="Adjacent"/>
+    <disable_collisions link1="left_shoulder_link" link2="left_upper_arm_link" reason="Adjacent"/>
+    <disable_collisions link1="left_upper_arm_link" link2="left_forearm_link" reason="Adjacent"/>
+    <disable_collisions link1="left_forearm_link" link2="left_wrist_1_link" reason="Adjacent"/>
+    <disable_collisions link1="left_wrist_1_link" link2="left_wrist_2_link" reason="Adjacent"/>
+    <disable_collisions link1="left_wrist_2_link" link2="left_wrist_3_link" reason="Adjacent"/>
+    <disable_collisions link1="left_wrist_3_link" link2="left_robotiq_85_base_link" reason="Adjacent"/>
+
+    <!-- ===== 左夹爪内部 ===== -->
+    <disable_collisions link1="left_robotiq_85_base_link" link2="left_robotiq_85_left_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_base_link" link2="left_robotiq_85_right_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_base_link" link2="left_robotiq_85_left_inner_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_base_link" link2="left_robotiq_85_right_inner_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_left_knuckle_link" link2="left_robotiq_85_left_finger_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_right_knuckle_link" link2="left_robotiq_85_right_finger_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_left_finger_link" link2="left_robotiq_85_left_finger_tip_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_right_finger_link" link2="left_robotiq_85_right_finger_tip_link" reason="Adjacent"/>
+    <disable_collisions link1="left_robotiq_85_left_inner_knuckle_link" link2="left_robotiq_85_left_knuckle_link" reason="Default"/>
+    <disable_collisions link1="left_robotiq_85_right_inner_knuckle_link" link2="left_robotiq_85_right_knuckle_link" reason="Default"/>
+    <disable_collisions link1="left_robotiq_85_left_finger_tip_link" link2="left_robotiq_85_left_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="left_robotiq_85_right_finger_tip_link" link2="left_robotiq_85_right_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="left_robotiq_85_left_finger_link" link2="left_robotiq_85_left_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="left_robotiq_85_right_finger_link" link2="left_robotiq_85_right_inner_knuckle_link" reason="Default"/>
+
+    <!-- ===== 右臂内部相邻链 ===== -->
+    <disable_collisions link1="right_base_link" link2="right_shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="right_base_link_inertia" link2="right_shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="right_base_link_inertia" link2="right_base_link" reason="Adjacent"/>
+    <disable_collisions link1="right_shoulder_link" link2="right_upper_arm_link" reason="Adjacent"/>
+    <disable_collisions link1="right_upper_arm_link" link2="right_forearm_link" reason="Adjacent"/>
+    <disable_collisions link1="right_forearm_link" link2="right_wrist_1_link" reason="Adjacent"/>
+    <disable_collisions link1="right_wrist_1_link" link2="right_wrist_2_link" reason="Adjacent"/>
+    <disable_collisions link1="right_wrist_2_link" link2="right_wrist_3_link" reason="Adjacent"/>
+    <disable_collisions link1="right_wrist_3_link" link2="right_robotiq_85_base_link" reason="Adjacent"/>
+
+    <!-- ===== 右夹爪内部 ===== -->
+    <disable_collisions link1="right_robotiq_85_base_link" link2="right_robotiq_85_left_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_base_link" link2="right_robotiq_85_right_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_base_link" link2="right_robotiq_85_left_inner_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_base_link" link2="right_robotiq_85_right_inner_knuckle_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_left_knuckle_link" link2="right_robotiq_85_left_finger_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_right_knuckle_link" link2="right_robotiq_85_right_finger_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_left_finger_link" link2="right_robotiq_85_left_finger_tip_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_right_finger_link" link2="right_robotiq_85_right_finger_tip_link" reason="Adjacent"/>
+    <disable_collisions link1="right_robotiq_85_left_inner_knuckle_link" link2="right_robotiq_85_left_knuckle_link" reason="Default"/>
+    <disable_collisions link1="right_robotiq_85_right_inner_knuckle_link" link2="right_robotiq_85_right_knuckle_link" reason="Default"/>
+    <disable_collisions link1="right_robotiq_85_left_finger_tip_link" link2="right_robotiq_85_left_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="right_robotiq_85_left_finger_tip_link" link2="right_robotiq_85_right_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="right_robotiq_85_right_finger_tip_link" link2="right_robotiq_85_right_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="right_robotiq_85_left_finger_link" link2="right_robotiq_85_left_inner_knuckle_link" reason="Default"/>
+    <disable_collisions link1="right_robotiq_85_right_finger_link" link2="right_robotiq_85_right_inner_knuckle_link" reason="Default"/>
+
+    <!-- ===== 俯视相机：禁用与所有 link 的碰撞（相机在 z=1.5 顶部，不会与机械臂碰撞，且无物理体） ===== -->
+    <disable_collisions link1="overhead_camera_link" link2="left_base_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_base_link_inertia" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_shoulder_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_forearm_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_wrist_1_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_wrist_2_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="left_wrist_3_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_base_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_base_link_inertia" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_shoulder_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_forearm_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_wrist_1_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_wrist_2_link" reason="Never"/>
+    <disable_collisions link1="overhead_camera_link" link2="right_wrist_3_link" reason="Never"/>
+
+    <!-- ===== workspace_marker：禁用与所有 link 的碰撞（只是 1mm 视觉地标） ===== -->
+    <disable_collisions link1="workspace_marker" link2="left_base_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_shoulder_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_forearm_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_wrist_1_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_wrist_2_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_wrist_3_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="left_robotiq_85_base_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_base_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_shoulder_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_forearm_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_wrist_1_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_wrist_2_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_wrist_3_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="right_robotiq_85_base_link" reason="Never"/>
+    <disable_collisions link1="workspace_marker" link2="overhead_camera_link" reason="Never"/>
+
+    <!-- ===== 两臂 base 互不影响（距离 1m，物理上不可能碰撞，禁用以加速 ACM） ===== -->
+    <disable_collisions link1="left_base_link" link2="right_base_link" reason="Never"/>
+    <disable_collisions link1="left_base_link_inertia" link2="right_base_link" reason="Never"/>
+    <disable_collisions link1="left_base_link" link2="right_base_link_inertia" reason="Never"/>
+    <disable_collisions link1="left_base_link_inertia" link2="right_base_link_inertia" reason="Never"/>
+
+</robot>

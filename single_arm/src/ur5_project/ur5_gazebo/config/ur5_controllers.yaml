@@ -1,0 +1,40 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    # ================= Robotiq 2F-85 夹爪控制器 =================
+    gripper_controller:
+      type: forward_command_controller/ForwardCommandController
+    # ===========================================================
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+# ================= Robotiq 2F-85 夹爪控制器参数 =================
+# Robotiq 夹爪只需要控制主关节 (left_knuckle_joint)
+# 其他关节通过 mimic 机制自动跟随
+# 范围: 0.0 (完全打开) 到 0.8 (完全闭合)
+gripper_controller:
+  ros__parameters:
+    joints:
+      - robotiq_85_left_knuckle_joint
+    interface_name: position
+# ===============================================================

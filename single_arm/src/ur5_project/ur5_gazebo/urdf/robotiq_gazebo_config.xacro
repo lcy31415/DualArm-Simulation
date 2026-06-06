@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!--
+    Robotiq 2F-85 Gazebo 物理参数配置
+    用于防止"物理爆炸"现象
+    -->
+
+    <xacro:macro name="robotiq_gazebo_physics" params="prefix">
+
+        <!-- 为所有 Robotiq 关节添加阻尼和摩擦力 -->
+
+        <!-- 主控制关节 - 左侧指关节 -->
+        <gazebo reference="${prefix}robotiq_85_left_knuckle_joint">
+            <implicitSpringDamper>true</implicitSpringDamper>
+            <springStiffness>0.0</springStiffness>
+            <springReference>0.0</springReference>
+            <dampingFactor>50.0</dampingFactor>
+            <friction>5.0</friction>
+        </gazebo>
+
+        <!-- 右侧指关节 (mimic) -->
+        <gazebo reference="${prefix}robotiq_85_right_knuckle_joint">
+            <implicitSpringDamper>true</implicitSpringDamper>
+            <springStiffness>0.0</springStiffness>
+            <springReference>0.0</springReference>
+            <dampingFactor>50.0</dampingFactor>
+            <friction>5.0</friction>
+        </gazebo>
+
+        <!-- 左内部关节 (mimic) -->
+        <gazebo reference="${prefix}robotiq_85_left_inner_knuckle_joint">
+            <implicitSpringDamper>true</implicitSpringDamper>
+            <dampingFactor>30.0</dampingFactor>
+            <friction>3.0</friction>
+        </gazebo>
+
+        <!-- 右内部关节 (mimic) -->
+        <gazebo reference="${prefix}robotiq_85_right_inner_knuckle_joint">
+            <implicitSpringDamper>true</implicitSpringDamper>
+            <dampingFactor>30.0</dampingFactor>
+            <friction>3.0</friction>
+        </gazebo>
+
+        <!-- 左指尖关节 (mimic) -->
+        <gazebo reference="${prefix}robotiq_85_left_finger_tip_joint">
+            <implicitSpringDamper>true</implicitSpringDamper>
+            <dampingFactor>30.0</dampingFactor>
+            <friction>3.0</friction>
+        </gazebo>
+
+        <!-- 右指尖关节 (mimic) -->
+        <gazebo reference="${prefix}robotiq_85_right_finger_tip_joint">
+            <implicitSpringDamper>true</implicitSpringDamper>
+            <dampingFactor>30.0</dampingFactor>
+            <friction>3.0</friction>
+        </gazebo>
+
+        <!-- 为所有 Robotiq 连杆添加碰撞属性 -->
+
+        <!-- 基座 -->
+        <gazebo reference="${prefix}robotiq_85_base_link">
+            <mu1>0.9</mu1>
+            <mu2>0.9</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <maxVel>0.01</maxVel>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 左指关节 -->
+        <gazebo reference="${prefix}robotiq_85_left_knuckle_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 右指关节 -->
+        <gazebo reference="${prefix}robotiq_85_right_knuckle_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 左指 -->
+        <gazebo reference="${prefix}robotiq_85_left_finger_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 右指 -->
+        <gazebo reference="${prefix}robotiq_85_right_finger_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 左内部关节 -->
+        <gazebo reference="${prefix}robotiq_85_left_inner_knuckle_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 右内部关节 -->
+        <gazebo reference="${prefix}robotiq_85_right_inner_knuckle_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>10000000.0</kp>
+            <kd>1000.0</kd>
+            <minDepth>0.0001</minDepth>
+            <selfCollide>false</selfCollide>
+        </gazebo>
+
+        <!-- 左指尖 - 高摩擦力用于抓取 -->
+        <gazebo reference="${prefix}robotiq_85_left_finger_tip_link">
+            <mu1>100.0</mu1>
+            <mu2>100.0</mu2>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <minDepth>0.002</minDepth>
+            <maxVel>0.0</maxVel>
+        </gazebo>
+
+        <!-- 右指尖 - 高摩擦力用于抓取 -->
+        <gazebo reference="${prefix}robotiq_85_right_finger_tip_link">
+            <mu1>100.0</mu1>
+            <mu2>100.0</mu2>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <minDepth>0.002</minDepth>
+            <maxVel>0.0</maxVel>
+        </gazebo>
+
+    </xacro:macro>
+
+</robot>

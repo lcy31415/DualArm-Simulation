@@ -1,0 +1,166 @@
+# Joint limits for planning（位置、速度、加速度）
+# 包含：单臂遗留（无前缀，6 条） + 双臂（left_/right_ 前缀，各 6 条 = 12 条）
+# 位置限位针对桌面/分拣任务裁剪，避免拧麻花
+
+# ====================================================================================
+# 共享的位置/速度/加速度数值（在每个关节复用）：
+#   shoulder_pan  : ±180°
+#   shoulder_lift : -180° ~ 0°
+#   elbow         : ±150°
+#   wrist_1       : -200° ~ 20°
+#   wrist_2       : ±120°
+#   wrist_3       : ±90°    （严格限制工具旋转）
+# 速度/加速度统一 2.0 rad/s²
+# ====================================================================================
+
+joint_limits:
+
+  # ==================== 单臂遗留（无前缀） ====================
+  shoulder_pan_joint:
+    has_position_limits: true
+    min_position: -3.14159
+    max_position:  3.14159
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  shoulder_lift_joint:
+    has_position_limits: true
+    min_position: -3.14159
+    max_position:  0.0
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  elbow_joint:
+    has_position_limits: true
+    min_position: -2.61799
+    max_position:  2.61799
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  wrist_1_joint:
+    has_position_limits: true
+    min_position: -3.49066
+    max_position:  0.34906
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  wrist_2_joint:
+    has_position_limits: true
+    min_position: -2.09440
+    max_position:  2.09440
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  wrist_3_joint:
+    has_position_limits: true
+    min_position: -1.57080
+    max_position:  1.57080
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+
+  # ==================== 左臂（left_ 前缀） ====================
+  left_shoulder_pan_joint:
+    has_position_limits: true
+    min_position: -3.14159
+    max_position:  3.14159
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_shoulder_lift_joint:
+    has_position_limits: true
+    min_position: -3.14159
+    max_position:  0.0
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_elbow_joint:
+    has_position_limits: true
+    min_position: -2.61799
+    max_position:  2.61799
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_wrist_1_joint:
+    has_position_limits: true
+    min_position: -3.49066
+    max_position:  0.34906
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_wrist_2_joint:
+    has_position_limits: true
+    min_position: -2.09440
+    max_position:  2.09440
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_wrist_3_joint:
+    has_position_limits: true
+    min_position: -1.57080
+    max_position:  1.57080
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+
+  # ==================== 右臂（right_ 前缀） ====================
+  right_shoulder_pan_joint:
+    has_position_limits: true
+    min_position: -3.14159
+    max_position:  3.14159
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_shoulder_lift_joint:
+    has_position_limits: true
+    min_position: -3.14159
+    max_position:  0.0
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_elbow_joint:
+    has_position_limits: true
+    min_position: -2.61799
+    max_position:  2.61799
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_wrist_1_joint:
+    has_position_limits: true
+    min_position: -3.49066
+    max_position:  0.34906
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_wrist_2_joint:
+    has_position_limits: true
+    min_position: -2.09440
+    max_position:  2.09440
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_wrist_3_joint:
+    has_position_limits: true
+    min_position: -1.57080
+    max_position:  1.57080
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 2.0

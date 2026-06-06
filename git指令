@@ -1,0 +1,66 @@
+以下是常用的 Git 指令，按日常使用场景进行了分类：
+
+### 基础配置 (Setup & Config)
+
+* `git config --global user.name "你的名字"`：设置全局用户名
+* `git config --global user.email "你的邮箱"`：设置全局邮箱
+* `git config --list`：查看当前 Git 配置信息
+
+---
+
+### 创建与克隆 (Init & Clone)
+
+* `git init`：在当前目录初始化一个新的本地 Git 仓库
+* `git clone <url>`：克隆一个远程仓库到本地
+
+---
+
+### 文件状态与提交 (Snapshotting)
+
+* `git status`：查看工作区和暂存区的文件状态
+* `git add <文件名>`：将指定文件添加到暂存区
+* `git add .`：将当前目录下所有修改过的文件添加到暂存区
+* `git commit -m "提交说明"`：将暂存区的内容提交到本地仓库
+* `git commit --amend`：修改最后一次提交（包括提交信息或漏掉的文件）
+
+---
+
+### 历史记录与差异 (History & Diff)
+
+* `git log`：查看提交历史记录
+* `git log --oneline`：以单行精简模式查看提交历史
+* `git diff`：查看工作区与暂存区之间的代码差异
+* `git diff --staged`：查看暂存区与最后一次提交之间的差异
+
+---
+
+### 分支管理 (Branching)
+
+* `git branch`：列出所有本地分支
+* `git branch <分支名>`：创建一个新分支
+* `git switch <分支名>`：切换到指定分支（较新版本的 Git 推荐使用）
+* `git checkout <分支名>`：切换到指定分支（经典用法）
+* `git checkout -b <分支名>`：创建并切换到一个新分支
+* `git branch -d <分支名>`：删除已合并的本地分支
+* `git merge <分支名>`：将指定分支合并到当前分支
+
+---
+
+### 远程同步 (Sharing & Updating)
+
+* `git remote -v`：查看连接的远程仓库信息
+* `git fetch`：从远程仓库下载最新代码，但不自动合并
+* `git pull`：拉取远程仓库的更新并立即与本地分支合并
+* `git push`：将本地分支的提交推送到远程仓库
+* `git push origin <分支名>`：推送到远程仓库的指定分支
+
+---
+
+### 撤销操作 (Undoing)
+
+* `git restore <文件名>`：撤销工作区中文件的修改
+* `git restore --staged <文件名>`：将文件从暂存区移出（取消 `git add`）
+* `git reset --hard HEAD`：彻底丢弃工作区和暂存区的所有更改，恢复到最后一次提交的状态
+* `git revert <commit_id>`：创建一个新的提交，用于撤销指定提交的更改
+
+colcon build

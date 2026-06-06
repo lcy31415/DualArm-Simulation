@@ -1,0 +1,12 @@
+string command_type  # "move", "gripper", or "sequence"
+string arm           # "left" or "right"
+geometry_msgs/Point target_position
+bool gripper_close
+string sequence_data # JSON for sequence mode
+---
+bool success
+string message
+int32 error_code
+---
+string current_state
+float32 progress

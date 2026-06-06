@@ -1,0 +1,5 @@
+# 控制检测开关的服务
+bool enable  # true=开启检测, false=停止检测
+---
+bool success  # 操作是否成功
+string message  # 返回消息

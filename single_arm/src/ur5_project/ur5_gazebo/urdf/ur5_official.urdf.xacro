@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5_robot">
+
+    <!-- 引入官方宏 -->\n    <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+    <!-- ================= 引入 Robotiq 2F-85 夹爪 ================= -->
+    <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro"/>
+    <xacro:include filename="$(find ur5_gazebo)/urdf/robotiq_gazebo_config.xacro"/>
+    <!-- ========================================================= -->
+
+    <!-- ================= 引入固定相机 ================= -->
+    <xacro:include filename="$(find ur5_gazebo)/urdf/camera.xacro"/>
+    <!-- ============================================== -->
+
+    <link name="world"/>
+
+    <xacro:ur_robot
+        name="ur5"
+        tf_prefix=""
+        parent="world"
+        joint_limits_parameters_file="$(find ur_description)/config/ur5/joint_limits.yaml"
+        kinematics_parameters_file="$(find ur_description)/config/ur5/default_kinematics.yaml"
+        physical_parameters_file="$(find ur_description)/config/ur5/physical_parameters.yaml"
+        visual_parameters_file="$(find ur_description)/config/ur5/visual_parameters.yaml"
+        safety_limits="false"
+        safety_pos_margin="0.15"
+        safety_k_position="20">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:ur_robot>
+
+    <!-- ================= 实例化 Robotiq 2F-85 夹爪 ================= -->
+    <!-- 把夹爪装在 tool0 上，不包含 ros2_control（统一在下方定义） -->
+    <xacro:robotiq_gripper
+        name="RobotiqGripperHardwareInterface"
+        prefix=""
+        parent="tool0"
+        sim_ignition="false"
+        use_fake_hardware="false"
+        include_ros2_control="false">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:robotiq_gripper>
+
+    <!-- 应用 Gazebo 物理参数（防止物理爆炸） -->
+    <xacro:robotiq_gazebo_physics prefix=""/>
+    <!-- ========================================================== -->
+
+    <!-- ================= 添加固定相机 (Eye-to-Hand) ================= -->
+    <!-- 相机位置: 在机械臂前方 1.5m，高度 1.5m，俯视角度 45度向下 -->
+    <xacro:fixed_camera prefix="" parent="world">
+        <origin xyz="1 0 1" rpy="0 1.22169444 3.141593"/>
+    </xacro:fixed_camera>
+    <!-- ========================================================== -->
+
+    <gazebo>
+        <!-- ================= 关键插件 1: 传感器系统插件 ================= -->
+        <!-- 必须添加！告诉 Gazebo 启动传感器引擎 -->
+        <!-- 没有这个插件，所有传感器（相机、激光雷达等）都不会发布数据 -->
+        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+        <!-- ======================================================== -->
+
+        <!-- ros2_control 插件 -->
+        <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find ur5_gazebo)/config/ur5_controllers.yaml</parameters>
+        </plugin>
+
+        <!-- Gazebo 物理引擎参数优化 -->
+        <physics type="ode">
+            <max_step_size>0.0005</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+            <real_time_update_rate>2000</real_time_update_rate>
+            <ode>
+                <solver>
+                    <type>quick</type>
+                    <iters>100</iters>
+                    <sor>1.3</sor>
+                </solver>
+                <constraints>
+                    <cfm>0.0</cfm>
+                    <erp>0.1</erp>
+                    <contact_max_correcting_vel>10.0</contact_max_correcting_vel>
+                    <contact_surface_layer>0.0001</contact_surface_layer>
+                </constraints>
+            </ode>
+        </physics>
+    </gazebo>
+
+    <ros2_control name="GazeboSimSystem" type="system">
+        <hardware>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+        <!-- 机械臂关节 - 几字形弯曲初始姿态 -->
+        <joint name="shoulder_pan_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="shoulder_lift_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-1.57</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="elbow_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">1.57</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="wrist_1_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-1.57</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="wrist_2_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">-1.57</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="wrist_3_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">0.0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <!-- ================= Robotiq 2F-85 夹爪关节 ================= -->
+        <!-- 主控制关节 -->
+        <joint name="robotiq_85_left_knuckle_joint">
+            <command_interface name="position"/>
+            <state_interface name="position">
+                <param name="initial_value">0.0</param>
+            </state_interface>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <!-- Mimic 关节 - 只有状态接口，不能有命令接口！ -->
+        <joint name="robotiq_85_right_knuckle_joint">
+            <param name="mimic">robotiq_85_left_knuckle_joint</param>
+            <param name="multiplier">-1</param>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="robotiq_85_left_inner_knuckle_joint">
+            <param name="mimic">robotiq_85_left_knuckle_joint</param>
+            <param name="multiplier">1</param>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="robotiq_85_right_inner_knuckle_joint">
+            <param name="mimic">robotiq_85_left_knuckle_joint</param>
+            <param name="multiplier">-1</param>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="robotiq_85_left_finger_tip_joint">
+            <param name="mimic">robotiq_85_left_knuckle_joint</param>
+            <param name="multiplier">-1</param>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="robotiq_85_right_finger_tip_joint">
+            <param name="mimic">robotiq_85_left_knuckle_joint</param>
+            <param name="multiplier">1</param>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <!-- ======================================================== -->
+    </ros2_control>
+
+</robot>

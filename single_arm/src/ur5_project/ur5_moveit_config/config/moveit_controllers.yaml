@@ -1,0 +1,30 @@
+# MoveIt controller configuration
+# 定义 MoveIt 如何与 ros2_control 控制器通信
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_controller
+    - gripper_controller
+
+  # UR5 机械臂控制器
+  arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+
+  # Robotiq 夹爪控制器
+  gripper_controller:
+    type: GripperCommand
+    action_ns: gripper_cmd
+    default: false
+    joints:
+      - robotiq_85_left_knuckle_joint
