@@ -70,9 +70,17 @@ ARM_LINKS = [
     "right_robotiq_85_left_inner_knuckle_link", "right_robotiq_85_right_inner_knuckle_link",
     "right_robotiq_85_left_finger_tip_link",    "right_robotiq_85_right_finger_tip_link",
 ]
-ARM_RADIUS_M  = 0.02   # 遮罩物理半径（m），覆盖连杆直径
-ARM_RADIUS_MIN = 10    # 最小像素半径
+ARM_RADIUS_M  = 0.05   # 遮罩物理半径（m），覆盖连杆直径
+ARM_RADIUS_MIN = 20    # 最小像素半径
 ARM_RADIUS_MAX = 120   # 最大像素半径
+
+# ─── 工作区 ROI（世界坐标） ───────────────────────────────────────────────────
+# 工作台 0.6×0.6 m，以世界原点为中心；相机正俯视，桌面 z≈0
+# 投影公式（与 _build_arm_mask 一致）：
+#   u = CX - wy * FX / depth    （world_y → 像素 u）
+#   v = CY - wx * FY / depth    （world_x → 像素 v）
+WORKSPACE_X = (-0.30, 0.30)   # 世界 x 轴范围（m）→ 图像 v 方向
+WORKSPACE_Y = (-0.30, 0.30)   # 世界 y 轴范围（m）→ 图像 u 方向
 
 # ─── 显示窗口 ─────────────────────────────────────────────────────────────────
 WIN = "UR5 Real-time Detection"
@@ -158,8 +166,9 @@ class DetectNode(Node):
 
         self._latest_depth: np.ndarray | None = None
         self._frame_count  = 0
-        self._last_log_t   = 0.0    # 终端输出限速
+        self._last_log_t   = 0.0
         self._detection_enabled = auto_start
+        self._roi_mask: np.ndarray | None = None   # 首帧计算后缓存
 
         # ── TF：用于生成机械臂动态遮罩 ──
         self._tf_buf      = tf2_ros.Buffer()
@@ -256,6 +265,25 @@ class DetectNode(Node):
 
         return mask
 
+    # ── 工作区 ROI 掩码（首帧计算，之后缓存） ────────────────────────────────
+    def _build_roi_mask(self, h: int, w: int) -> np.ndarray:
+        """
+        把世界坐标工作区矩形投影到像素平面。
+        返回掩码：ROI 内 = 255，ROI 外 = 0。
+        """
+        depth = CAM_HEIGHT          # 桌面 z≈0，depth = 1.0 - 0 = 1.0 m
+        x_min, x_max = WORKSPACE_X
+        y_min, y_max = WORKSPACE_Y
+        # u = CX - wy*FX/depth → y_max → u 最小（左边），y_min → u 最大（右边）
+        u_left  = max(0, int(CX - y_max * FX / depth))
+        u_right = min(w, int(CX - y_min * FX / depth))
+        # v = CY - wx*FY/depth → x_max → v 最小（上边），x_min → v 最大（下边）
+        v_top   = max(0, int(CY - x_max * FY / depth))
+        v_bot   = min(h, int(CY - x_min * FY / depth))
+        mask = np.zeros((h, w), dtype=np.uint8)
+        mask[v_top:v_bot, u_left:u_right] = 255
+        return mask
+
     # ── 检测使能回调 ──────────────────────────────────────────────────────────
     def _enable_cb(self, msg: Bool):
         if msg.data and not self._detection_enabled:
@@ -289,26 +317,38 @@ class DetectNode(Node):
                 cv2.waitKey(1)
             return
 
-        # ── 生成机械臂动态遮罩并置黑（送入 YOLO 前） ─────────────────────────
+        # ── 构建推理帧：ROI 外置黑 + 臂体置黑 ───────────────────────────────
         h, w = frame.shape[:2]
+
+        # ROI 掩码（首帧计算后缓存，工作区以外全部置黑）
+        if self._roi_mask is None or self._roi_mask.shape != (h, w):
+            self._roi_mask = self._build_roi_mask(h, w)
+
         arm_mask = self._build_arm_mask(h, w)
+        infer_frame = frame.copy()
+        infer_frame[self._roi_mask == 0] = 0   # ROI 外置黑
         if arm_mask.any():
-            infer_frame = frame.copy()
-            infer_frame[arm_mask > 0] = 0   # 遮罩区域置黑，消除臂体干扰
-        else:
-            infer_frame = frame
+            infer_frame[arm_mask > 0] = 0       # 臂体区域置黑
 
         results  = self._model.predict(infer_frame, conf=0.40, verbose=False)
         display  = frame.copy()
 
-        # 在显示画面上叠加遮罩区域（半透明深色 + 白色轮廓，便于调试）
+        # ROI 外半透明暗化 + 青色边框（调试可见）
+        dark = display.copy()
+        dark[self._roi_mask == 0] = (20, 20, 20)
+        cv2.addWeighted(dark, 0.55, display, 0.45, 0, display)
+        roi_cnts, _ = cv2.findContours(
+            self._roi_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(display, roi_cnts, -1, (0, 255, 255), 2)
+
+        # 臂体遮罩半透明深色 + 灰色轮廓
         if arm_mask.any():
-            dark = display.copy()
-            dark[arm_mask > 0] = (30, 30, 30)
-            cv2.addWeighted(dark, 0.45, display, 0.55, 0, display)
-            contours, _ = cv2.findContours(
+            dark2 = display.copy()
+            dark2[arm_mask > 0] = (30, 30, 30)
+            cv2.addWeighted(dark2, 0.45, display, 0.55, 0, display)
+            arm_cnts, _ = cv2.findContours(
                 arm_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            cv2.drawContours(display, contours, -1, (180, 180, 180), 1)
+            cv2.drawContours(display, arm_cnts, -1, (180, 180, 180), 1)
 
         detects  = []
 
@@ -327,6 +367,11 @@ class DetectNode(Node):
                 cv_  = float(pts[:, 1].mean())
                 d    = self._get_depth(cu, cv_, cid)
                 wx, wy, wz = pixel_to_world(cu, cv_, d)
+
+                # ROI 世界坐标兜底过滤（防止边缘误检漏过掩码）
+                if not (WORKSPACE_X[0] <= wx <= WORKSPACE_X[1] and
+                        WORKSPACE_Y[0] <= wy <= WORKSPACE_Y[1]):
+                    continue
 
                 # ── OBB 主轴角度 ──────────────────────────────────────────────
                 # 取两条邻边，选较长者作为主轴（对非正方形物体更稳定）

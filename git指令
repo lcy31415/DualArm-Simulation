@@ -64,3 +64,5 @@
 * `git revert <commit_id>`：创建一个新的提交，用于撤销指定提交的更改
 
 colcon build
+
+./launch_sorting_demo_1.sh

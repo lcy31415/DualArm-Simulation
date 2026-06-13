@@ -39,8 +39,8 @@ from ur5_interfaces.action import MotionCommand
 HOME_X, HOME_Y, HOME_Z = 0.25, 0.0, 0.4
 
 # ── 分拣参数 ────────────────────────────────────────────────────────────────────
-L1 = 0.20   # 接近高度偏移：tool0 在 z1+0.20，指尖在 z1+0.07
-L2 = 0.07   # 下降深度：tool0 在 z1+0.13，指尖到达 z1（夹爪长 0.13 m）
+L1 = 0.20    # 接近高度偏移：tool0 在 z1+0.20，指尖在 z1+0.07
+L2 = 0.075  # 下降深度：tool0 在 z1+0.125，指尖到达 z1（夹爪长 0.13 m）
 
 # ── 分拣目标（世界坐标 x,y） ───────────────────────────────────────────────────
 SORT_TARGETS = {
@@ -56,6 +56,11 @@ CLASS_TO_ARM = {
     "Cylinder": "left",
     "T-block":  "left",
     "Ball":     "right",
+}
+
+# ── 夹爪角度补偿（OBB 主轴为长轴，部分物体需要转 90° 改为垂直长轴夹取） ────────
+GRASP_ANGLE_OFFSET = {
+    "T-block": 90.0,   # 沿短轴张开夹爪，垂直 T 形长边
 }
 
 # ── 检测节点输出的中文类名 → 英文 ─────────────────────────────────────────────
@@ -93,7 +98,7 @@ def build_sort_sequence(arm: str,
     """
     ax, ay, az_a = world_to_arm(arm, x1, y1, z1 + L1)
     _,  _,  az_g = world_to_arm(arm, x1, y1, z1 + L1 - L2)
-    dx, dy, dz_c = world_to_arm(arm, x2, y2, z1 + 0.28)
+    dx, dy, dz_c = world_to_arm(arm, x2, y2, z1 + 0.15)
 
     steps = [
         {"type": "gripper", "close": False},
@@ -225,6 +230,7 @@ class SortingDemoNode(Node):
 
             xyz       = det.get("xyz", [0.0, 0.0, 0.0])
             angle_deg = float(det.get("angle_deg", 0.0))
+            angle_deg += GRASP_ANGLE_OFFSET.get(class_en, 0.0)
             x1, y1, z1 = float(xyz[0]), float(xyz[1]), float(xyz[2])
             x2, y2     = float(target[0]), float(target[1])
 
